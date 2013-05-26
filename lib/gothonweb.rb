@@ -21,5 +21,10 @@ end
 
 post '/hello' do
 	greeting = "#{params[:greet] || "Hello"}, #{params[:name] || "Nobody"}"
-	erb :index, :locals => {:greeting => greeting}
+
+	File.open('uploads/' + params['myfile'][:filename], "w") do |f|
+		f.write(params['myfile'][:tempfile].read)
+  end
+  message = "The file '#{params['myfile'][:filename]}' was successfully uploaded!"
+	haml :index, :locals => {:greeting => greeting, :message => message}
 end
