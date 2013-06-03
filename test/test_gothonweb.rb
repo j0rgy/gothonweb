@@ -7,6 +7,7 @@ ENV['RACK_ENV'] = 'test'
 class GothonwebTest < Test::Unit::TestCase
 	include Rack::Test::Methods
 
+
 	def app
 		Sinatra::Application
 	end
@@ -33,21 +34,47 @@ class GothonwebTest < Test::Unit::TestCase
 	end
 
 	def test_index
-		# check that we get a 404 on the / URL
+		# check that we get a 404 on the /foo URL
 		get("/foo")
 		assert_response(last_response, nil, nil, nil, 404)
 
-		# test our first GET request to /hello
-		get("/hello")
-		assert_response(last_response)
+		# test our first GET request to /, should redirect to /game
+		get("/")
+		assert_response(last_response, nil, nil, nil, 302)
+		follow_redirect!
+		assert_match "/game", last_request.url
+		assert last_response.ok?
 
-		# make sure default values work for the form
-		post("/hello")
-		assert_response(last_response, "Nobody")
+		# test starting corridor
+		post("/game", :action => 'shoot!')
+		follow_redirect!
+		assert_response(last_response, "Death")
 
-		# test that we get expected values
-		post("/hello", :name => 'John', :greet => 'Hola')
-		assert_response(last_response, "John")
-		assert_response(last_response, "Hola")
+		get("/")
+		post("/game", :action => 'dodge!')
+		follow_redirect!
+		puts last_response.body
+		assert_response(last_response, "Death")
+
+		
+		get "/"
+		post "/game", :action => 'tell a joke'
+		follow_redirect!
+		puts last_response.body
+		assert_response(last_response, "Laser Weapon Armory")
+
+		post "/game", :action => '0132'
+		follow_redirect!
+		assert_response(last_response, "The Bridge")
+
+		post "/game", :action => 'slowly place the bomb'
+		follow_redirect!
+		assert_response(last_response, "Escape Pod")
+
+		post "/game", :action => '2'
+		follow_redirect!
+		assert_response(last_response, "You won!")
+
+
 	end
 end

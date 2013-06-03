@@ -1,0 +1,15 @@
+%h1
+  =room.name
+
+%div#room_description
+  =room.description
+
+-if room.name == "Death"
+  %p
+    %a(href="/")
+      Play Again?
+-else
+  %div#commands
+    %form(action="/game" method="POST")
+      %input(type="text" name="action")
+      %input(type="SUBMIT")
